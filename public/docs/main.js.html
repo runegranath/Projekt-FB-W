@@ -1,4 +1,32 @@
-import "./style.scss";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: main.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: main.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import "./style.scss";
 import fastPlayGif from "./assets/bb.gif";
 import { keys } from "./config.js";
 
@@ -13,7 +41,7 @@ const recipeContainer = document.getElementById("recipe-container");
 /**
  * Hämtar en access-token från Spotify API med hjälp av Client Credentials Flow.
  * * @async
- * @returns {Promise<string>} Promise som returnerar access-token som en sträng.
+ * @returns {Promise&lt;string>} Promise som returnerar access-token som en sträng.
  */
 async function getSpotifyToken() {
   const url = "https://accounts.spotify.com/api/token";
@@ -36,14 +64,14 @@ async function getSpotifyToken() {
  * Söker efter en låt på Spotify och beräknar en "energi"-faktor baserat på dess längd.
  * * @async
  * @param {string} searchTerm - Namn på låten eller artisten att söka efter.
- * @returns {Promise<Object|null>} Ett objekt med låtens namn, artist, bild och längd (0.0-1.0), eller null vid fel.
+ * @returns {Promise&lt;Object|null>} Ett objekt med låtens namn, artist, bild och längd (0.0-1.0), eller null vid fel.
  */
 async function getMusicMood(searchTerm) {
   try {
     const token = await getSpotifyToken();
 
     const searchRes = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchTerm)}&type=track&limit=1`,
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchTerm)}&amp;type=track&amp;limit=1`,
       {
         headers: { Authorization: `Bearer ${token}` },
       },
@@ -75,14 +103,14 @@ async function getMusicMood(searchTerm) {
  * Hämtar ett matchande recept från Spoonacular API.
  * * @async
  * @param {string} query - Sökterm för receptet (t.ex. "pasta" eller "slow cook").
- * @returns {Promise<Object|null>} Ett objekt med receptinformation eller null om inget hittas.
+ * @returns {Promise&lt;Object|null>} Ett objekt med receptinformation eller null om inget hittas.
  */
 async function fetchRecipe(query) {
-  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=1&apiKey=${SPOON_KEY}`;
+  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&amp;number=1&amp;apiKey=${SPOON_KEY}`;
   try {
     const response = await fetch(url);
     const data = await response.json();
-    return data.results && data.results.length > 0 ? data.results[0] : null;
+    return data.results &amp;&amp; data.results.length > 0 ? data.results[0] : null;
   } catch (error) {
     console.error("Spoonacular-fel:", error);
     return null;
@@ -101,51 +129,51 @@ function renderResults(music, recipe) {
 
   if (music.energy >= 1.0) {
     timeText =
-      "Vad sägs om ett <strong>långkok</strong> för en lång låt? Det verkar som du har gott om tid!";
+      "Vad sägs om ett &lt;strong>långkok&lt;/strong> för en lång låt? Det verkar som du har gott om tid!";
     isLongest = true;
   } else if (music.energy >= 0.8) {
     timeText =
-      "En <strong>rejäl låt på drygt 4 minuter</strong> kräver en ordentlig middag som matchar energin.";
+      "En &lt;strong>rejäl låt på drygt 4 minuter&lt;/strong> kräver en ordentlig middag som matchar energin.";
   } else if (music.energy >= 0.5) {
     timeText =
-      "Med en låtlängd på <strong>runt 3 minuter</strong> passar det perfekt med en klassisk pasta.";
+      "Med en låtlängd på &lt;strong>runt 3 minuter&lt;/strong> passar det perfekt med en klassisk pasta.";
   } else {
     timeText =
-      "Den här låten är <strong>snabb och kort!</strong> Vi kör på ett snabbt recept innan den tar slut.";
+      "Den här låten är &lt;strong>snabb och kort!&lt;/strong> Vi kör på ett snabbt recept innan den tar slut.";
     isShort = true;
   }
 
   trackContainer.innerHTML = `
-    <div class="card">
-      <h2>Musik-analys</h2>
-      <div class="music-info">
-        <img src="${music.image}" alt="Album cover" style="width:100px; border-radius:10px; margin-bottom:15px; border: 2px solid #5b23ff;">
-        <p>Låt: <strong>${music.name}</strong></p>
-        <p>Artist: <strong>${music.artist}</strong></p>
-        <p>Låtens längdfaktor: <strong>${Math.round(music.energy * 100)}%</strong></p>
-      </div>
-    </div>
+    &lt;div class="card">
+      &lt;h2>Musik-analys&lt;/h2>
+      &lt;div class="music-info">
+        &lt;img src="${music.image}" alt="Album cover" style="width:100px; border-radius:10px; margin-bottom:15px; border: 2px solid #5b23ff;">
+        &lt;p>Låt: &lt;strong>${music.name}&lt;/strong>&lt;/p>
+        &lt;p>Artist: &lt;strong>${music.artist}&lt;/strong>&lt;/p>
+        &lt;p>Låtens längdfaktor: &lt;strong>${Math.round(music.energy * 100)}%&lt;/strong>&lt;/p>
+      &lt;/div>
+    &lt;/div>
   `;
 
   recipeContainer.innerHTML = `
-    <div class="card">
-      <h2>Recept-matchning</h2>
-      <h3>${recipe.title}</h3>
-      <img src="${recipe.image}" alt="${recipe.title}" style="width:100%; border-radius:10px; margin: 15px 0; border: 2px solid #5b23ff;">
+    &lt;div class="card">
+      &lt;h2>Recept-matchning&lt;/h2>
+      &lt;h3>${recipe.title}&lt;/h3>
+      &lt;img src="${recipe.image}" alt="${recipe.title}" style="width:100%; border-radius:10px; margin: 15px 0; border: 2px solid #5b23ff;">
       
-      <div class="recipe-match-content">
-        <p class="recipe-text">${timeText}</p>
-      </div>
+      &lt;div class="recipe-match-content">
+        &lt;p class="recipe-text">${timeText}&lt;/p>
+      &lt;/div>
       
-      ${recipe.sourceUrl ? `<a href="${recipe.sourceUrl}" target="_blank" class="recipe-link" style="margin-top:15px; display:inline-block;">Se hela receptet</a>` : ""}
-    </div>
+      ${recipe.sourceUrl ? `&lt;a href="${recipe.sourceUrl}" target="_blank" class="recipe-link" style="margin-top:15px; display:inline-block;">Se hela receptet&lt;/a>` : ""}
+    &lt;/div>
   `;
 
   if (isShort) {
     if (typeof fastPlayGif !== "undefined") {
       const gifEl = document.createElement("img");
       gifEl.src = fastPlayGif;
-      gifEl.alt = "Beavis & Butt-Head fast play";
+      gifEl.alt = "Beavis &amp; Butt-Head fast play";
       gifEl.classList.add("fastplay-gif");
 
       document.body.appendChild(gifEl);
@@ -166,7 +194,7 @@ function renderResults(music, recipe) {
     const snailsContainer = document.createElement("div");
     snailsContainer.classList.add("snails-container");
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i &lt; 6; i++) {
       const snailEl = document.createElement("div");
       snailEl.classList.add("dancing-snail");
       snailEl.textContent = "🐌";
@@ -189,7 +217,7 @@ function renderResults(music, recipe) {
  * Huvudfunktion som koordinerar hämtning av musik, val av matkategori och hämtning av recept.
  * Hanterar också laddningsstatus i gränssnittet.
  * * @async
- * @returns {Promise<void>}
+ * @returns {Promise&lt;void>}
  */
 async function getMashupData() {
   const songInput = document.getElementById("song-input");
@@ -249,3 +277,26 @@ songInput.addEventListener("keypress", (event) => {
     getMashupData();
   }
 });
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#fetchRecipe">fetchRecipe</a></li><li><a href="global.html#getMashupData">getMashupData</a></li><li><a href="global.html#getMusicMood">getMusicMood</a></li><li><a href="global.html#getSpotifyToken">getSpotifyToken</a></li><li><a href="global.html#renderResults">renderResults</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Mar 22 2026 18:21:19 GMT+0100 (Central European Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
