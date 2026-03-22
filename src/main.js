@@ -1,60 +1,156 @@
-import './style.css'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.js'
+import "./style.scss";
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src=${viteLogo} class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+import { keys } from "./config.js";
 
-<div class="ticks"></div>
+const SPOON_KEY = keys.SPOON_KEY;
+const SPOT_ID = keys.SPOT_ID;
+const SPOT_SECRET = keys.SPOT_SECRET;
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src=${viteLogo} alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+const matchBtn = document.getElementById("match-btn");
+const trackContainer = document.getElementById("track-container");
+const recipeContainer = document.getElementById("recipe-container");
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+async function getSpotifyToken() {
+  const url = "https://accounts.spotify.com/api/token";
+  const auth = btoa(`${SPOT_ID}:${SPOT_SECRET}`);
 
-setupCounter(document.querySelector('#counter'))
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  const data = await response.json();
+  return data.access_token;
+}
+
+async function getMusicMood(searchTerm) {
+  try {
+    const token = await getSpotifyToken();
+
+    const searchRes = await fetch(
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchTerm)}&type=track&limit=1`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    const searchData = await searchRes.json();
+    const track = searchData.tracks.items[0];
+
+    if (!track) return null;
+
+    const minutes = track.duration_ms / 1000 / 60;
+
+    let lengthScore = minutes / 5;
+    if (lengthScore > 1) lengthScore = 1;
+
+    return {
+      name: track.name,
+      artist: track.artists[0].name,
+      image: track.album.images[0].url,
+      energy: lengthScore,
+    };
+  } catch (error) {
+    console.error("Spotify-fel:", error);
+    return null;
+  }
+}
+
+async function fetchRecipe(query) {
+  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=1&apiKey=${SPOON_KEY}`;
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data.results && data.results.length > 0 ? data.results[0] : null;
+  } catch (error) {
+    console.error("Spoonacular-fel:", error);
+    return null;
+  }
+}
+
+function renderResults(music, recipe) {
+  trackContainer.innerHTML = `
+    <div class="card">
+      <h2>Musik-analys</h2>
+      <div class="music-info">
+        <img src="${music.image}" alt="Album cover" style="width:100px; border-radius:10px; margin-bottom:15px;">
+        <p>Låt: <strong>${music.name}</strong></p>
+        <p>Artist: <strong>${music.artist}</strong></p>
+        <p>Låtens längdfaktor: <strong>${Math.round(music.energy * 100)}%</strong></p>
+      </div>
+    </div>
+  `;
+
+  recipeContainer.innerHTML = `
+    <div class="card">
+      <h2>Rekommenderat recept</h2>
+      <h3>${recipe.title}</h3>
+      <img src="${recipe.image}" alt="${recipe.title}" style="width:100%; border-radius:10px; margin: 15px 0;">
+      <p>
+        ${
+          music.energy > 0.7
+            ? "Denna låt är ett riktigt <strong>epos</strong>! Eftersom du har tid att lyssna på en lång låt, föreslår vi ett recept som får ta sin lilla tid."
+            : "Denna låt är <strong>kort och effektiv</strong>! Därför matchar vi den med ett recept som går snabbt att slänga ihop."
+        }
+      </p>
+    </div>
+  `;
+}
+
+async function getMashupData() {
+  const songInput = document.getElementById("song-input");
+  const searchTerm = songInput.value;
+
+  if (!searchTerm) {
+    alert("Skriv in en låt först!");
+    return;
+  }
+
+  try {
+    document.body.classList.add("is-loading");
+    trackContainer.innerHTML = "Analyserar musik-rytmen...";
+    recipeContainer.innerHTML = "Letar efter matchande smaker...";
+
+    const music = await getMusicMood(searchTerm);
+    if (!music) {
+      trackContainer.innerHTML = "Hittade ingen låt. Prova något annat!";
+      recipeContainer.innerHTML = "";
+      return;
+    }
+
+    let foodQuery = "fast food"; 
+
+    if (music.energy > 0.7) {
+      foodQuery = "stew"; 
+    } else if (music.energy > 0.4) {
+      foodQuery = "pasta";
+    }
+    const recipe = await fetchRecipe(foodQuery);
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (recipe) {
+      renderResults(music, recipe);
+    } else {
+      recipeContainer.innerHTML = "Hittade tyvärr inget recept just nu.";
+    }
+  } catch (error) {
+    console.error("Huvudfel:", error);
+  } finally {
+    document.body.classList.remove("is-loading");
+  }
+}
+
+matchBtn.addEventListener("click", getMashupData);
+
+const songInput = document.getElementById("song-input");
+
+songInput.addEventListener("keypress", (event) => {
+  if (event.key === "Enter") {
+    getMashupData();
+  }
+});
