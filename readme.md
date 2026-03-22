@@ -1,6 +1,8 @@
 # DineVibe Mashup
 En interaktiv webbapplikation som matchar musik med recept baserat på låtens längd.
 
+[🔗 Besök live-sidan här](https://runegranath.github.io/Projekt-FB-W/)
+
 ## Funktioner
 * Spotify Integration: Hämtar realtidsdata om låtar (artist, omslag och längd).
 * Spoonacular API: Matchar musikens karaktär med passande recept (till exempel långkok för långa låtar).
