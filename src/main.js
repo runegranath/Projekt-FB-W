@@ -1,5 +1,5 @@
 import "./style.scss";
-
+import fastPlayGif from "./assets/bb.gif";
 import { keys } from "./config.js";
 
 const SPOON_KEY = keys.SPOON_KEY;
@@ -73,11 +73,31 @@ async function fetchRecipe(query) {
 }
 
 function renderResults(music, recipe) {
+  let timeText = "";
+  let isShort = false;
+  let isLongest = false;
+
+  if (music.energy >= 1.0) {
+    timeText =
+      "Vad sägs om ett <strong>långkok</strong> för en lång låt? Det verkar som du har gott om tid!";
+    isLongest = true;
+  } else if (music.energy >= 0.8) {
+    timeText =
+      "En <strong>rejäl låt på drygt 4 minuter</strong> kräver en ordentlig middag som matchar energin.";
+  } else if (music.energy >= 0.5) {
+    timeText =
+      "Med en låtlängd på <strong>runt 3 minuter</strong> passar det perfekt med en klassisk pasta.";
+  } else {
+    timeText =
+      "Den här låten är <strong>snabb och kort!</strong> Vi kör på ett snabbt recept innan den tar slut.";
+    isShort = true;
+  }
+
   trackContainer.innerHTML = `
     <div class="card">
       <h2>Musik-analys</h2>
       <div class="music-info">
-        <img src="${music.image}" alt="Album cover" style="width:100px; border-radius:10px; margin-bottom:15px;">
+        <img src="${music.image}" alt="Album cover" style="width:100px; border-radius:10px; margin-bottom:15px; border: 2px solid #5b23ff;">
         <p>Låt: <strong>${music.name}</strong></p>
         <p>Artist: <strong>${music.artist}</strong></p>
         <p>Låtens längdfaktor: <strong>${Math.round(music.energy * 100)}%</strong></p>
@@ -87,18 +107,60 @@ function renderResults(music, recipe) {
 
   recipeContainer.innerHTML = `
     <div class="card">
-      <h2>Rekommenderat recept</h2>
+      <h2>Recept-matchning</h2>
       <h3>${recipe.title}</h3>
-      <img src="${recipe.image}" alt="${recipe.title}" style="width:100%; border-radius:10px; margin: 15px 0;">
-      <p>
-        ${
-          music.energy > 0.7
-            ? "Denna låt är ett riktigt <strong>epos</strong>! Eftersom du har tid att lyssna på en lång låt, föreslår vi ett recept som får ta sin lilla tid."
-            : "Denna låt är <strong>kort och effektiv</strong>! Därför matchar vi den med ett recept som går snabbt att slänga ihop."
-        }
-      </p>
+      <img src="${recipe.image}" alt="${recipe.title}" style="width:100%; border-radius:10px; margin: 15px 0; border: 2px solid #5b23ff;">
+      
+      <div class="recipe-match-content">
+        <p class="recipe-text">${timeText}</p>
+      </div>
+      
+      ${recipe.sourceUrl ? `<a href="${recipe.sourceUrl}" target="_blank" class="recipe-link" style="margin-top:15px; display:inline-block;">Se hela receptet</a>` : ""}
     </div>
   `;
+
+  if (isShort) {
+    if (typeof fastPlayGif !== "undefined") {
+      const gifEl = document.createElement("img");
+      gifEl.src = fastPlayGif;
+      gifEl.alt = "Beavis & Butt-Head fast play";
+      gifEl.classList.add("fastplay-gif");
+
+      document.body.appendChild(gifEl);
+
+      setTimeout(() => {
+        gifEl.classList.add("hide");
+
+        setTimeout(() => {
+          if (gifEl.parentNode) {
+            gifEl.parentNode.removeChild(gifEl);
+          }
+        }, 500);
+      }, 5000);
+    }
+  }
+
+  if (isLongest) {
+    const snailsContainer = document.createElement("div");
+    snailsContainer.classList.add("snails-container");
+
+    for (let i = 0; i < 6; i++) {
+      const snailEl = document.createElement("div");
+      snailEl.classList.add("dancing-snail");
+      snailEl.textContent = "🐌";
+      snailsContainer.appendChild(snailEl);
+    }
+
+    document.body.appendChild(snailsContainer);
+
+    setTimeout(() => {
+      snailsContainer.classList.add("hide");
+      setTimeout(() => {
+        if (snailsContainer.parentNode)
+          snailsContainer.parentNode.removeChild(snailsContainer);
+      }, 500);
+    }, 5000);
+  }
 }
 
 async function getMashupData() {
@@ -122,13 +184,18 @@ async function getMashupData() {
       return;
     }
 
-    let foodQuery = "fast food"; 
+    let foodQuery = "";
 
-    if (music.energy > 0.7) {
-      foodQuery = "stew"; 
-    } else if (music.energy > 0.4) {
+    if (music.energy >= 1.0) {
+      foodQuery = "slow cook";
+    } else if (music.energy >= 0.8) {
+      foodQuery = "dinner";
+    } else if (music.energy >= 0.5) {
       foodQuery = "pasta";
+    } else {
+      foodQuery = "snack";
     }
+
     const recipe = await fetchRecipe(foodQuery);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
