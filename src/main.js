@@ -63,7 +63,7 @@ async function getMusicMood(searchTerm) {
       name: track.name,
       artist: track.artists[0].name,
       image: track.album.images[0].url,
-      energy: lengthScore,
+      minutes: lengthScore,
     };
   } catch (error) {
     console.error("Spotify-fel:", error);
@@ -99,14 +99,14 @@ function renderResults(music, recipe) {
   let isShort = false;
   let isLongest = false;
 
-  if (music.energy >= 1.0) {
+  if (music.minutes >= 1.0) {
     timeText =
       "Vad sägs om ett <strong>långkok</strong> för en lång låt? Det verkar som du har gott om tid!";
     isLongest = true;
-  } else if (music.energy >= 0.8) {
+  } else if (music.minutes >= 0.8) {
     timeText =
       "En <strong>rejäl låt på drygt 4 minuter</strong> kräver en ordentlig middag som matchar energin.";
-  } else if (music.energy >= 0.5) {
+  } else if (music.minutes >= 0.5) {
     timeText =
       "Med en låtlängd på <strong>runt 3 minuter</strong> passar det perfekt med en klassisk pasta.";
   } else {
@@ -122,7 +122,7 @@ function renderResults(music, recipe) {
         <img src="${music.image}" alt="Album cover" style="width:100px; border-radius:10px; margin-bottom:15px; border: 2px solid #5b23ff;">
         <p>Låt: <strong>${music.name}</strong></p>
         <p>Artist: <strong>${music.artist}</strong></p>
-        <p>Låtens längdfaktor: <strong>${Math.round(music.energy * 100)}%</strong></p>
+        <p>Låtens längdfaktor: <strong>${Math.round(music.minutes * 100)}%</strong></p>
       </div>
     </div>
   `;
@@ -202,7 +202,7 @@ async function getMashupData() {
 
   try {
     document.body.classList.add("is-loading");
-    trackContainer.innerHTML = "Analyserar musik-rytmen...";
+    trackContainer.innerHTML = "Analyserar musik-längden...";
     recipeContainer.innerHTML = "Letar efter matchande smaker...";
 
     const music = await getMusicMood(searchTerm);
@@ -214,11 +214,11 @@ async function getMashupData() {
 
     let foodQuery = "";
 
-    if (music.energy >= 1.0) {
+    if (music.minutes >= 1.0) {
       foodQuery = "slow cook";
-    } else if (music.energy >= 0.8) {
+    } else if (music.minutes >= 0.8) {
       foodQuery = "dinner";
-    } else if (music.energy >= 0.5) {
+    } else if (music.minutes >= 0.5) {
       foodQuery = "pasta";
     } else {
       foodQuery = "snack";
