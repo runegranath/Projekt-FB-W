@@ -26,8 +26,8 @@ Projektet använder en separat fil, `config.js`, för att hantera API-nycklar mo
 
 ## Dokumentation
 Teknisk dokumentation:
-[Läs projektets tekniska dokumentation här](https://runegranath.github.io/Projekt-FB-W/docs/index.html)
-[Teknisk projektrapport](./MallTekniskaRapporterMIUN_projekt.pdf)
+* [Läs projektets tekniska dokumentation här](https://runegranath.github.io/Projekt-FB-W/docs/index.html)
+* [Teknisk projektrapport](./MallTekniskaRapporterMIUN_projekt.pdf)
 
 ## Installation och Uppstart
 1. Klona arkivet:
