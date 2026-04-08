@@ -105,6 +105,12 @@ header {
   flex-direction: column;
   gap: 1.5rem;
   padding-bottom: 3rem;
+
+   a {
+        color: $bright-yellow;
+        font-weight: bold;
+      }
+
 }
 
 .card {
@@ -181,13 +187,14 @@ body.is-loading .main-content {
   border: 2px solid $bright-yellow;
   box-shadow: 0 0 15px rgba(228, 255, 48, 0.4);
 
-  animation: peekUpByTransform 0.8s ease-out forwards;
+  animation: peekUpByTransform 0.8s ease-out;
 
   transition:
     opacity 0.5s ease,
     transform 0.5s ease;
 
   &.hide {
+    animation: none;
     opacity: 0;
     transform: translateY(150px);
     pointer-events: none;
@@ -244,15 +251,6 @@ body.is-loading .main-content {
 
   &.hide {
     opacity: 0;
-  }
-
-  &::before,
-  &::after {
-    content: "";
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    height: 80%;
   }
 }
 

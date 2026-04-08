@@ -78,7 +78,7 @@ async function getMusicMood(searchTerm) {
  * @returns {Promise<Object|null>} Ett objekt med receptinformation eller null om inget hittas.
  */
 async function fetchRecipe(query) {
-  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=1&apiKey=${SPOON_KEY}`;
+  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=1&addRecipeInformation=true&apiKey=${SPOON_KEY}`;
   try {
     const response = await fetch(url);
     const data = await response.json();
