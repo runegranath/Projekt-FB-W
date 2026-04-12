@@ -262,6 +262,17 @@ body.is-loading .main-content {
     snailDance 0.5s ease-in-out infinite;
 }
 
+footer {
+  margin-top: auto;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgba($bright-yellow, 0.6);
+  border-top: 2px solid $neon-blue;
+  background-color: #252545;
+  width: 100%;
+}
+
 @keyframes snailDance {
   0% {
     transform: scaleX(1);
