@@ -27,7 +27,7 @@ Projektet använder en separat fil, `config.js`, för att hantera API-nycklar mo
 ## Dokumentation
 Teknisk dokumentation:
 * [Läs projektets tekniska dokumentation här](https://runegranath.github.io/Projekt-FB-W/docs/index.html)
-* [Teknisk projektrapport](./MallTekniskaRapporterMIUN_projekt.pdf)
+* [Teknisk projektrapport](./Projektrapport-dinevibe)
 * [Wireframes för projektet](https://www.figma.com/design/KneBCmknh2H9X6LZlSpALq/DineVibe?node-id=0-1&t=X9M6PI3wdOrcgLHZ-0) 
 
 ## Installation och Uppstart
