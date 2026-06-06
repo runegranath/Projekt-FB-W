@@ -34,3 +34,8 @@ Teknisk dokumentation:
 1. Klona arkivet:
    ```bash
    git clone [https://github.com/runegranath/Projekt-FB-W.git](https://github.com/runegranath/Projekt-FB-W.git)
+
+   npm install
+2. npm run dev
+3. npm run build
+4. npm run preview
