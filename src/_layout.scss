@@ -304,3 +304,168 @@ footer {
     font-size: 2rem;
   }
 }
+
+.intro-message {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) 2rem 2rem;
+  align-items: center;
+  gap: 1rem;
+
+  width: min(780px, calc(100% - 2rem));
+  margin: 0 auto 2rem;
+  padding: 1.25rem 1.5rem;
+
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+
+  animation: intro-arrive 600ms ease both;
+
+  p {
+    margin: 0;
+    text-align: center;
+    line-height: 1.4;
+  }
+}
+
+.intro-icon {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+
+  font-size: 1.5rem;
+  line-height: 1;
+  transform-origin: center;
+}
+
+.intro-icon--music {
+  animation: music-bounce 1.4s ease-in-out infinite;
+}
+
+.intro-icon--food {
+  font-size: 1.4rem;
+  animation: plate-wiggle 1.6s ease-in-out infinite;
+}
+
+.intro-close {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  place-items: center;
+
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 90%);
+  color: #25203f;
+
+  font-family: Arial, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1;
+
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+
+  transition:
+    transform 150ms ease,
+    background-color 150ms ease;
+
+  &:hover {
+    transform: scale(1.1);
+    background-color: #fff;
+  }
+
+  &:focus-visible {
+    outline: 3px solid $bright-yellow;
+    outline-offset: 3px;
+  }
+}
+
+.intro-message--closing {
+  pointer-events: none;
+  animation: intro-leave 350ms ease forwards;
+}
+
+@keyframes intro-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes intro-leave {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.97);
+  }
+}
+
+@keyframes music-bounce {
+  0%,
+  100% {
+    transform: rotate(-8deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(8deg) translateY(-6px);
+  }
+}
+
+@keyframes plate-wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+
+  25% {
+    transform: rotate(-7deg) translateY(-3px);
+  }
+
+  50% {
+    transform: rotate(0deg) translateY(-6px);
+  }
+
+  75% {
+    transform: rotate(7deg) translateY(-3px);
+  }
+}
+
+@media (max-width: 600px) {
+  .intro-message {
+    position: relative;
+    grid-template-columns: 2rem minmax(0, 1fr) 2rem;
+    gap: 0.75rem;
+    padding: 1rem 3.5rem 1rem 1rem;
+
+    p {
+      font-size: 0.95rem;
+    }
+  }
+
+  .intro-icon--food {
+    display: none;
+  }
+
+  .intro-close {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+
+    &:hover {
+      transform: translateY(-50%) scale(1.1);
+    }
+  }
+}

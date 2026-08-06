@@ -10,6 +10,23 @@ const matchBtn = document.getElementById("match-btn");
 const trackContainer = document.getElementById("track-container");
 const recipeContainer = document.getElementById("recipe-container");
 
+document.addEventListener("DOMContentLoaded", () => {
+  const introMessage = document.querySelector(".intro-message");
+  const introCloseButton = document.querySelector(".intro-close");
+
+  introCloseButton.addEventListener("click", () => {
+    introMessage.classList.add("intro-message--closing");
+
+    introMessage.addEventListener(
+      "animationend",
+      () => {
+        introMessage.remove();
+      },
+      { once: true },
+    );
+  });
+});
+
 /**
  * Hämtar en access-token från Spotify API med hjälp av Client Credentials Flow.
  * * @async

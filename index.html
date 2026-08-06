@@ -11,6 +11,24 @@
 <body>
   <header>
     <h1>DineVibe</h1>
+
+    <div class="intro-message">
+      <span class="intro-icon intro-icon--music">🎵</span>
+
+      <p>
+        Välj en låt. Du får sedan ett recept efter längden som speglar
+        ungefär hur lång tid det tar att laga!
+      </p>
+
+      <span class="intro-icon intro-icon--food">
+        🍽️
+      </span>
+
+      <button class="intro-close" id="intro-close" type="button">
+        x
+      </button>
+    </div>
+
     <div class="search-group">
       <input type="text" id="song-input" placeholder="Skriv en låt eller artist...">
       <button id="match-btn">Hitta matchande mat</button>
@@ -31,6 +49,7 @@
   </main>
   <footer>Projektuppgift av Rune Granath för kursen Frontendbaserad Webbutveckling</footer>
   <script type="module" src="/src/main.js"></script>
+
 </body>
 
 </html>
