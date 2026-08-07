@@ -345,7 +345,9 @@ footer {
 
 .intro-icon--food {
   font-size: 1.4rem;
-  animation: plate-wiggle 1.6s ease-in-out infinite;
+  animation: plate-spin 2.5s linear infinite;
+  transform-origin: center;
+  transform-style: preserve-3d;
 }
 
 .intro-close {
@@ -423,22 +425,13 @@ footer {
   }
 }
 
-@keyframes plate-wiggle {
-  0%,
-  100% {
-    transform: rotate(0deg) translateY(0);
+@keyframes plate-spin {
+  from {
+    transform: rotateY(0deg);
   }
 
-  25% {
-    transform: rotate(-7deg) translateY(-3px);
-  }
-
-  50% {
-    transform: rotate(0deg) translateY(-6px);
-  }
-
-  75% {
-    transform: rotate(7deg) translateY(-3px);
+  to {
+    transform: rotateY(360deg);
   }
 }
 

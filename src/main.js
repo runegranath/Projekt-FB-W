@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /**
  * Hämtar en access-token från Spotify API med hjälp av Client Credentials Flow.
- * * @async
+ * @async
  * @returns {Promise<string>} Promise som returnerar access-token som en sträng.
  */
 async function getSpotifyToken() {
@@ -50,10 +50,10 @@ async function getSpotifyToken() {
 }
 
 /**
- * Söker efter en låt på Spotify och beräknar en "energi"-faktor baserat på dess längd.
- * * @async
+ * Söker efter en låt på Spotify och beräknar en längdfaktor baserat på dess längd.
+ * @async
  * @param {string} searchTerm - Namn på låten eller artisten att söka efter.
- * @returns {Promise<Object|null>} Ett objekt med låtens namn, artist, bild och längd (0.0-1.0), eller null vid fel.
+ * @returns {Promise<Object|null>} Ett objekt med låtens namn, artist, bild, längdfaktor (0.0-1.0) och längd i millisekunder, eller null vid fel.
  */
 async function getMusicMood(searchTerm) {
   try {
@@ -80,7 +80,8 @@ async function getMusicMood(searchTerm) {
       name: track.name,
       artist: track.artists[0].name,
       image: track.album.images[0].url,
-      minutes: lengthScore,
+      lengthScore,
+      durationMs: track.duration_ms,
     };
   } catch (error) {
     console.error("Spotify-fel:", error);
@@ -89,16 +90,41 @@ async function getMusicMood(searchTerm) {
 }
 
 /**
+ * Omvandlar en tid i millisekunder till formatet minuter:sekunder.
+ *
+ * @param {number} durationMs - Tid i millisekunder.
+ * @returns {string} Formaterad tid, till exempel "3:42".
+ */
+function formatDuration(durationMs) {
+  const totalSeconds = Math.floor(durationMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+/**
  * Hämtar ett matchande recept från Spoonacular API.
- * * @async
+ * Längdfaktorn används för att sätta maximal tillagningstid.
+ * @async
  * @param {string} query - Sökterm för receptet (t.ex. "pasta" eller "slow cook").
+ * @param {number} lengthScore - Låtens längdfaktor mellan 0 och 1.
  * @returns {Promise<Object|null>} Ett objekt med receptinformation eller null om inget hittas.
  */
-async function fetchRecipe(query) {
-  const url = `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=1&addRecipeInformation=true&apiKey=${SPOON_KEY}`;
+async function fetchRecipe(query, lengthScore) {
+  const maxReadyTime = Math.round(15 + lengthScore * 75);
+
+  const url =
+    `https://api.spoonacular.com/recipes/complexSearch` +
+    `?query=${encodeURIComponent(query)}` +
+    `&maxReadyTime=${maxReadyTime}` +
+    `&number=1` +
+    `&addRecipeInformation=true` +
+    `&apiKey=${SPOON_KEY}`;
   try {
     const response = await fetch(url);
     const data = await response.json();
+
     return data.results && data.results.length > 0 ? data.results[0] : null;
   } catch (error) {
     console.error("Spoonacular-fel:", error);
@@ -108,22 +134,25 @@ async function fetchRecipe(query) {
 
 /**
  * Skapar HTML-element för att visa musik- och receptdata samt aktiverar animationer.
- * * @param {Object} music - Objektet som innehåller låtens data och längdfaktor.
- * @param {Object} recipe - Objektet som innehåller receptets titel, bild och käll-URL.
+ * @param {Object} music - Objekt med låtens namn, artist, bild, längdfaktor och längd.
+ * @param {Object} recipe - Objekt med receptets titel, bild, tillagningstid och käll-URL.
  */
 function renderResults(music, recipe) {
+  const songDuration = formatDuration(music.durationMs);
+  const recipeDuration = recipe.readyInMinutes;
+
   let timeText = "";
   let isShort = false;
   let isLongest = false;
 
-  if (music.minutes >= 1.0) {
+  if (music.lengthScore >= 1.0) {
     timeText =
       "Vad sägs om ett <strong>långkok</strong> för en lång låt? Det verkar som du har gott om tid!";
     isLongest = true;
-  } else if (music.minutes >= 0.8) {
+  } else if (music.lengthScore >= 0.8) {
     timeText =
       "En <strong>rejäl låt på drygt 4 minuter</strong> kräver en ordentlig middag som matchar energin.";
-  } else if (music.minutes >= 0.5) {
+  } else if (music.lengthScore >= 0.5) {
     timeText =
       "Med en låtlängd på <strong>runt 3 minuter</strong> passar det perfekt med en klassisk pasta.";
   } else {
@@ -139,7 +168,7 @@ function renderResults(music, recipe) {
         <img src="${music.image}" alt="Album cover" style="width:100px; border-radius:10px; margin-bottom:15px; border: 2px solid #5b23ff;">
         <p>Låt: <strong>${music.name}</strong></p>
         <p>Artist: <strong>${music.artist}</strong></p>
-        <p>Låtens längdfaktor: <strong>${Math.round(music.minutes * 100)}%</strong></p>
+        <p>Längd: <strong>${songDuration}</strong></p>
       </div>
     </div>
   `;
@@ -148,6 +177,9 @@ function renderResults(music, recipe) {
     <div class="card">
       <h2>Recept-matchning</h2>
       <h3>${recipe.title}</h3>
+
+      <p>Tillagningstid: <strong>${recipeDuration} minuter</strong></p>
+
       <img src="${recipe.image}" alt="${recipe.title}" style="width:100%; border-radius:10px; margin: 15px 0; border: 2px solid #5b23ff;">
       
       <div class="recipe-match-content">
@@ -204,8 +236,9 @@ function renderResults(music, recipe) {
 
 /**
  * Huvudfunktion som koordinerar hämtning av musik, val av matkategori och hämtning av recept.
+ * Låtens längdfaktor används både för val av matkategori och maximal tillagningstid.
  * Hanterar också laddningsstatus i gränssnittet.
- * * @async
+ * @async
  * @returns {Promise<void>}
  */
 async function getMashupData() {
@@ -231,17 +264,17 @@ async function getMashupData() {
 
     let foodQuery = "";
 
-    if (music.minutes >= 1.0) {
+    if (music.lengthScore >= 1.0) {
       foodQuery = "slow cook";
-    } else if (music.minutes >= 0.8) {
+    } else if (music.lengthScore >= 0.8) {
       foodQuery = "dinner";
-    } else if (music.minutes >= 0.5) {
+    } else if (music.lengthScore >= 0.5) {
       foodQuery = "pasta";
     } else {
       foodQuery = "snack";
     }
 
-    const recipe = await fetchRecipe(foodQuery);
+    const recipe = await fetchRecipe(foodQuery, music.lengthScore);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
