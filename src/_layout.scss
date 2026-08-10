@@ -305,26 +305,51 @@ footer {
   }
 }
 
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
 .intro-message {
   display: grid;
   grid-template-columns: 2rem minmax(0, 1fr) 2rem 2rem;
   align-items: center;
   gap: 1rem;
 
-  width: min(780px, calc(100% - 2rem));
+  width: calc(100% - 2rem);
+  max-width: 780px;
   margin: 0 auto 2rem;
   padding: 1.25rem 1.5rem;
 
+  border: 5px solid transparent;
   border-radius: 1.25rem;
-  background: rgb(255 255 255 / 12%);
+
   color: #fff;
 
-  animation: intro-arrive 600ms ease both;
+  background:
+    linear-gradient(rgba(17, 14, 32, 0.96), rgba(36, 29, 66, 0.96)) padding-box,
+    conic-gradient(
+        from var(--border-angle),
+        rgba($lighter-purple, 0.25) 0deg,
+        rgba($lighter-purple, 0.25) 310deg,
 
-  p {
-    margin: 0;
-    text-align: center;
-    line-height: 1.4;
+        $neon-blue 325deg,
+        #ffffff 337deg,
+        $bright-yellow 346deg,
+
+        rgba($lighter-purple, 0.25) 360deg
+      )
+      border-box;
+
+  animation:
+    intro-arrive 600ms ease both,
+    border-spin 7s linear infinite;
+}
+
+@keyframes border-spin {
+  to {
+    --border-angle: 360deg;
   }
 }
 
