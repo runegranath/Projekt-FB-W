@@ -107,7 +107,7 @@ function formatDuration(durationMs) {
  * Hämtar ett matchande recept från Spoonacular API.
  * Längdfaktorn används för att sätta maximal tillagningstid.
  * @async
- * @param {string} query - Sökterm för receptet (t.ex. "pasta" eller "slow cook").
+ * @param {string} query - Sökterm för receptet (t.ex. "pasta" eller "stew").
  * @param {number} lengthScore - Låtens längdfaktor mellan 0 och 1.
  * @returns {Promise<Object|null>} Ett objekt med receptinformation eller null om inget hittas.
  */
@@ -120,6 +120,7 @@ async function fetchRecipe(query, lengthScore) {
     `&maxReadyTime=${maxReadyTime}` +
     `&number=1` +
     `&addRecipeInformation=true` +
+    `&sort=random` +
     `&apiKey=${SPOON_KEY}`;
   try {
     const response = await fetch(url);
@@ -147,7 +148,7 @@ function renderResults(music, recipe) {
 
   if (music.lengthScore >= 1.0) {
     timeText =
-      "Vad sägs om ett <strong>långkok</strong> för en lång låt? Det verkar som du har gott om tid!";
+      "Vad sägs om en <strong>gryta</strong> för en lång låt? Det verkar som du har gott om tid!";
     isLongest = true;
   } else if (music.lengthScore >= 0.8) {
     timeText =
@@ -265,7 +266,7 @@ async function getMashupData() {
     let foodQuery = "";
 
     if (music.lengthScore >= 1.0) {
-      foodQuery = "slow cook";
+      foodQuery = "stew";
     } else if (music.lengthScore >= 0.8) {
       foodQuery = "dinner";
     } else if (music.lengthScore >= 0.5) {
